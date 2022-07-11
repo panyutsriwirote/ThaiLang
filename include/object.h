@@ -8,62 +8,29 @@
 /*                     COMMON                         */
 /******************************************************/
 
-typedef struct _obj obj;
-typedef void (*printfunc)(FILE *, obj *);
-typedef obj *(*copyfunc)(obj *);
-typedef void (*delfunc)(void *);
-typedef bool (*istruefunc)(obj *);
-
 typedef enum _objtype {
-    IntType, FloatType, StrType, BoolType
+    Int, Float, Str, Bool
 } objtype;
 
-typedef struct _impl {
-    objtype Type;
-    char *TypeName;
-    printfunc print;
-    copyfunc copy;
-    delfunc del;
-    istruefunc istrue;
-} impl;
+char *type_as_str(objtype type);
 
 #define common_fields\
-    const impl *TypeImpl;\
+    objtype type;\
     unsigned int refcount;
 
-struct _obj {
+typedef struct _obj {
     common_fields
-};
+} obj;
 
-static inline void refinc(obj *object) {
+static inline obj *ref(obj *object) {
     object->refcount++;
+    return object;
 }
-
-static inline objtype type(obj *object) {
-    return object->TypeImpl->Type;
-}
-
-static inline char *type_as_str(obj *object) {
-    return object->TypeImpl->TypeName;
-}
-
-static inline void print(FILE *stream, obj *object) {
-    object->TypeImpl->print(stream, object);
-}
-
-static inline obj *copy(obj *object) {
-    return object->TypeImpl->copy(object);
-}
-
-static inline void del(obj *object) {
-    if (--object->refcount == 0) {
-        object->TypeImpl->del(object);
-    }
-}
-
-static inline bool istrue(obj *object) {
-    return object->TypeImpl->istrue(object);
-}
+void print(FILE *stream, obj *object);
+void print_repr(FILE *stream, obj *object);
+obj *copy(obj *object);
+void del(obj *object);
+bool istrue(obj *object);
 
 /******************************************************/
 /*                TYPE DECLARATION                    */
@@ -82,8 +49,8 @@ typedef struct _floatobj {
 typedef struct _strobj {
     common_fields
     char *chars;
-    size_t used;
-    size_t allocated;
+    size_t len;
+    size_t cap;
 } strobj;
 
 typedef struct _boolobj {

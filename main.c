@@ -3,14 +3,14 @@
 #include "object.h"
 
 void println(obj *object) {
-    print(stdout, object);
+    print_repr(stdout, object);
     printf("\n");
 }
 
 int main(int argc, char **argv) {
-    obj *intob = new_int(0);
+    obj *intob = new_int(1);
     obj *floatob = new_float(0.0);
-    obj *strob = new_str("");
+    obj *strob = new_str("a");
     obj *boolob = new_bool(false);
     println(intob);
     println(floatob);
