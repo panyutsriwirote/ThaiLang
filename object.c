@@ -1,12 +1,10 @@
 #include "object.h"
-#include <stdlib.h>
-#include <string.h>
 
 /******************************************************/
 /*                     COMMON                         */
 /******************************************************/
 
-char *type_as_str(objtype type) {
+char *objtype_as_str(objtype type) {
     switch (type) {
         case Int:
             return "Int";
@@ -20,11 +18,6 @@ char *type_as_str(objtype type) {
             fprintf(stderr, "ERROR: '%d': Unrecognized object type", type);
             exit(EXIT_FAILURE);
     }
-}
-
-void AllocError() {
-    fprintf(stderr, "ERROR: Failed to allocate memory");
-    exit(EXIT_FAILURE);
 }
 
 /******************************************************/
@@ -61,6 +54,7 @@ obj *new_float(double value) {
 /*                       STR                          */
 /******************************************************/
 
+#define STR_MIN_SIZE 15
 obj *new_str(char *value) {
     strobj *object = (strobj *)malloc(sizeof(strobj));
     if (!object) {
@@ -69,7 +63,7 @@ obj *new_str(char *value) {
     object->refcount = 1;
     object->type = Str;
     size_t len = strlen(value);
-    size_t cap = (len + 1 > 15) ? len + 1 : 15;
+    size_t cap = (len + 1 > STR_MIN_SIZE) ? len + 1 : STR_MIN_SIZE;
     char *string = (char *)malloc(cap);
     if (!string) {
         AllocError();
@@ -119,7 +113,7 @@ void print(FILE *stream, obj *object) {
             }
             break;
         default:
-            fprintf(stderr, "ERROR: '%s': Unprintable object type", type_as_str(object->type));
+            fprintf(stderr, "ERROR: '%s': Unprintable object type", objtype_as_str(object->type));
             exit(EXIT_FAILURE);
     }
 }
@@ -139,7 +133,7 @@ void print_repr(FILE *stream, obj *object) {
             fprintf(stream, "\"%s\"", str_cast(object)->chars);
             break;
         default:
-            fprintf(stderr, "ERROR: '%s': Unrepresentable object type", type_as_str(object->type));
+            fprintf(stderr, "ERROR: '%s': Unrepresentable object type", objtype_as_str(object->type));
             exit(EXIT_FAILURE);
     }
 }
@@ -159,7 +153,7 @@ obj *copy(obj *object) {
         case Bool:
             return new_bool(bool_cast(object)->value);
         default:
-            fprintf(stderr, "ERROR: '%s': Uncopiable object type", type_as_str(object->type));
+            fprintf(stderr, "ERROR: '%s': Uncopiable object type", objtype_as_str(object->type));
             exit(EXIT_FAILURE);
     }
 }
@@ -181,7 +175,7 @@ void del(obj *object) {
                 free(object);
                 break;
             default:
-                fprintf(stderr, "ERROR: '%s': Undeletable object type", type_as_str(object->type));
+                fprintf(stderr, "ERROR: '%s': Undeletable object type", objtype_as_str(object->type));
                 exit(EXIT_FAILURE);
         }
     }
@@ -202,7 +196,19 @@ bool istrue(obj *object) {
         case Bool:
             return bool_cast(object)->value;
         default:
-            fprintf(stderr, "ERROR: '%s': Type truthiness undefined", type_as_str(object->type));
+            fprintf(stderr, "ERROR: '%s': Type truthiness undefined", objtype_as_str(object->type));
             exit(EXIT_FAILURE);
     }
 }
+
+/******************************************************/
+/*                     HASHING                        */
+/******************************************************/
+
+// size_t hash(obj *object) {
+//     switch (object->type) {
+//         default:
+//             fprintf(stderr, "ERROR: '%s': Unhashable object type", objtype_as_str(object->type));
+//             exit(EXIT_FAILURE);
+//     }
+// }

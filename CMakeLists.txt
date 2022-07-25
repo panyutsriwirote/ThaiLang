@@ -12,7 +12,17 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 include_directories(./include)
-add_executable(thai main.c object.c)
+add_executable(thai
+                main.c
+                object.c
+                hashtable.c
+                context.c
+                func.c
+                ast.c
+                eval.c
+                exec.c
+                lexer.c
+                parser.c)
 
 # add_test(NAME hello COMMAND thai)
 # set_property(TEST hello PROPERTY PASS_REGULAR_EXPRESSION "^Hello World!")
